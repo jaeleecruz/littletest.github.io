@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ticket Routing Feedback & Instincts Study</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.97) translateY(8px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .pop-in {
+      animation: popIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .card-shadow {
+      box-shadow: 0 10px 30px -5px rgba(99, 102, 241, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-amber-50/50 via-slate-50 to-indigo-50/30 text-slate-700 min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-100 selection:text-indigo-800">
+  <!-- Friendly Top Header -->
+  <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/70 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 via-rose-400 to-indigo-500 flex items-center justify-center shadow-md shadow-indigo-200 text-white font-bold text-2xl">
+          📮
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base sm:text-lg font-bold text-slate-800 tracking-tight">
+              Ticket Routing Instincts Study
+            </h1>
+            <span class="inline-flex items-center gap-1 text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2.5 py-0.5 rounded-full font-medium shadow-xs">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              No Wrong Answers!
+            </span>
+          </div>
+          <p class="text-xs text-slate-500">Help us understand where you'd naturally send tickets so we can simplify our team queues.</p>
+        </div>
+      </div>
+
+      <!-- Header status pills -->
+      <div class="flex items-center gap-2.5 text-xs">
+        <div class="bg-slate-100/90 border border-slate-200 rounded-xl px-3 py-1.5 flex items-center gap-2.5 text-slate-600 font-medium">
+          <span>Ticket <strong id="progressDisplay" class="text-indigo-600 font-bold">1 of 6</strong></span>
+          <span class="text-slate-300">|</span>
+          <span>Logged: <strong id="choicesCountDisplay" class="text-slate-800">0</strong></span>
+        </div>
+        <button id="manageScenariosBtn" class="bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 hover:border-slate-300 px-3 py-1.5 rounded-xl font-medium transition shadow-2xs flex items-center gap-1.5 active:scale-98">
+          <span>⚙️</span> Edit Questions
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-between">
+    <!-- Active Study View -->
+    <div id="quizContainer" class="flex-1 flex flex-col justify-between w-full">
+      <!-- Scenario Showcase Card -->
+      <div class="mb-6">
+        <!-- Reassuring Tip Banner -->
+        <div class="mb-4 bg-amber-50/90 border border-amber-200/80 rounded-2xl p-3 sm:p-3.5 text-xs text-amber-900 flex items-center justify-between gap-3 shadow-2xs">
+          <div class="flex items-center gap-2.5">
+            <span class="text-lg">🌱</span>
+            <span><strong>Zero pressure:</strong> Tap the category that feels most intuitive to you. If multiple feel right or none quite fit, that's exact data we want to learn!</span>
+          </div>
+          <span id="ticketIdLabel" class="font-mono text-slate-400 bg-white/90 border border-amber-200/60 px-2.5 py-0.5 rounded-lg text-[11px] whitespace-nowrap font-medium">TKT-1042</span>
+        </div>
+
+        <!-- Ticket Card Envelope -->
+        <div id="ticketCard" class="bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-7 card-shadow transition-all duration-300 relative overflow-hidden">
+          <div class="absolute -top-12 -right-12 w-32 h-32 bg-indigo-50 rounded-full blur-2xl pointer-events-none"></div>
+
+          <!-- Top Meta Row -->
+          <div class="flex items-start justify-between gap-4 border-b border-slate-100 pb-4 mb-4">
+            <div>
+              <span id="ticketRequester" class="text-[11px] font-bold text-indigo-600 uppercase tracking-wider bg-indigo-50 px-2.5 py-1 rounded-md">
+                Submitted by Team Member
+              </span>
+              <h2 id="ticketSubject" class="text-lg sm:text-xl font-bold text-slate-800 mt-2 leading-snug">
+                Data is not parsing and I can't figure out why
+              </h2>
+            </div>
+            <div id="urgencyBadge" class="bg-slate-100 text-slate-600 border border-slate-200/80 text-xs px-3 py-1 rounded-full font-medium whitespace-nowrap shrink-0">
+              Priority: Medium
+            </div>
+          </div>
+
+          <!-- User's natural language quote -->
+          <div class="mb-5">
+            <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide mb-1.5 flex items-center gap-1.5">
+              <span>💬 What the user wrote:</span>
+            </div>
+            <p id="ticketBody" class="bg-gradient-to-br from-slate-50 to-slate-100/50 p-4 sm:p-5 rounded-2xl border border-slate-200/70 text-slate-700 text-sm leading-relaxed italic font-normal">
+              "When I upload the hourly JSON payload through the ETL ingest interface, the parser crashes with a malformed token exception at line 44. I tried re-exporting the CSV, but nothing is parsing through to staging."
+            </p>
+          </div>
+
+          <!-- Subtle Context Badges -->
+          <div class="flex flex-wrap items-center gap-2 pt-1 text-xs text-slate-500">
+            <span class="bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl flex items-center gap-1">
+              <span>💻</span> Source: <strong id="ticketSource" class="text-slate-700 font-medium">Ingest API / ETL</strong>
+            </span>
+            <span class="bg-slate-50 border border-slate-200 px-3 py-1 rounded-xl flex items-center gap-1">
+              <span>📍</span> System: <strong id="ticketRegion" class="text-slate-700 font-medium">Global Pipeline</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- Insight Response Box (Unveils gently after picking a bucket) -->
+        <div id="feedbackBox" class="hidden mt-4 rounded-3xl p-5 border-2 border-indigo-200 bg-white shadow-xl pop-in">
+          <div class="flex items-center justify-between gap-3 border-b border-slate-100 pb-3 mb-3.5">
+            <div class="flex items-center gap-2.5">
+              <span class="text-2xl">🎉</span>
+              <div>
+                <h4 class="font-bold text-slate-800 text-sm">Response Recorded</h4>
+                <p class="text-xs text-slate-500">
+                  You picked: <strong id="selectedBucketNameDisplay" class="text-indigo-600 font-bold">Data Issue (Parsing)</strong>
+                </p>
+              </div>
+            </div>
+            <button id="nextTicketBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-indigo-200 hover:shadow-lg transition flex items-center gap-1.5 active:scale-98">
+              Next Ticket →
+            </button>
+          </div>
+
+          <!-- Confidence & Reasoning -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+            <div>
+              <label class="block text-slate-600 mb-1.5 font-semibold">How obvious did this choice feel to you?</label>
+              <div class="flex items-center gap-1.5" id="confidenceButtons">
+                <button data-conf="Confident" class="conf-btn flex-1 py-2 px-2 rounded-xl border-2 border-indigo-500 bg-indigo-50 text-indigo-700 font-bold text-center transition shadow-2xs">
+                  👍 Super clear
+                </button>
+                <button data-conf="Somewhat Confident" class="conf-btn flex-1 py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-slate-600 text-center transition">
+                  🤔 Toss-up
+                </button>
+                <button data-conf="Guess" class="conf-btn flex-1 py-2 px-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-slate-600 text-center transition">
+                  🎲 Pure guess
+                </button>
+              </div>
+            </div>
+
+            <!-- Optional quick thought -->
+            <div>
+              <label class="block text-slate-600 mb-1.5 font-semibold">Quick note: What drove your choice? <span class="font-normal text-slate-400">(Optional)</span></label>
+              <input id="choiceReasonInput" type="text" placeholder="e.g. 'Saw the word parsing', 'Could also be missing data'" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:bg-white transition" />
+            </div>
+          </div>
+
+          <!-- Friendly taxonomy context note -->
+          <div class="mt-3.5 p-3 bg-amber-50/60 rounded-xl border border-amber-200/60 text-xs flex items-start gap-2.5 text-slate-600">
+            <span class="text-amber-600 text-sm">💡</span>
+            <div>
+              <strong class="text-amber-900 font-semibold">Behind-the-scenes queue context:</strong>
+              <span id="taxonomyNoteText" class="text-slate-600 ml-1"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bucket Selection Area -->
+      <div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+            <span>👇</span> Where does your gut tell you this belongs?
+          </span>
+          <span class="text-xs text-indigo-600 font-medium">Click any bucket to log</span>
+        </div>
+
+        <!-- Bucket Grid with light friendly buttons -->
+        <div id="bucketGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Friendly Completed Study & Insight Report View -->
+    <div id="summaryView" class="hidden max-w-3xl mx-auto w-full bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 card-shadow text-center pop-in">
+      <div class="w-16 h-16 bg-gradient-to-tr from-amber-200 via-rose-200 to-indigo-200 text-indigo-800 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-sm">
+        ✨
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-800 mb-1.5">Thank You! All Finished!</h2>
+      <p class="text-slate-600 text-xs sm:text-sm max-w-md mx-auto mb-6">
+        Your natural instincts give us clear data on which queue names work and where category overlap causes confusion.
+      </p>
+
+      <!-- Key Insight Metric Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-6">
+        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200 text-left">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Tickets Evaluated</div>
+          <div id="summaryTotalReviewed" class="text-2xl font-extrabold text-slate-800 mt-1">6</div>
+          <div class="text-[11px] text-emerald-600 font-medium mt-0.5">100% completed</div>
+        </div>
+
+        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200 text-left">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Most Popular Bucket</div>
+          <div id="summaryTopBucket" class="text-base font-bold text-indigo-600 mt-1 truncate">Data Issue</div>
+          <div id="summaryTopBucketCount" class="text-[11px] text-slate-500 mt-0.5">2 tickets routed here</div>
+        </div>
+
+        <div class="bg-slate-50/80 p-4 rounded-2xl border border-slate-200 text-left">
+          <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Decision Clarity</div>
+          <div id="summaryConfidenceScore" class="text-2xl font-extrabold text-amber-600 mt-1">83%</div>
+          <div class="text-[11px] text-slate-500 mt-0.5">Felt clear / obvious</div>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown Cards -->
+      <div class="text-left mb-6">
+        <div class="flex items-center justify-between mb-2.5 px-1">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Your Routing Choices & Queue Overlap</h3>
+          <span class="text-[11px] text-slate-400">Comparing natural picks vs current architecture</span>
+        </div>
+        <div id="roundReviewList" class="space-y-2.5 max-h-72 overflow-y-auto pr-1 text-xs">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Actions: Share & Export -->
+      <div class="flex flex-wrap items-center justify-center gap-3 pt-3 border-t border-slate-100">
+        <button id="copySummaryBtn" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2 active:scale-98">
+          📋 Copy Summary for Slack
+        </button>
+        <button id="downloadCsvBtn" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 font-semibold px-4 py-2.5 rounded-xl text-xs transition flex items-center gap-2 active:scale-98">
+          📥 Download CSV Report
+        </button>
+        <button id="restartQuizBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2.5 rounded-xl text-xs shadow-md shadow-indigo-200 hover:shadow-lg transition active:scale-98">
+          🔄 Start Over
+        </button>
+      </div>
+      <div id="toastMessage" class="hidden mt-3 text-xs text-emerald-800 bg-emerald-100 border border-emerald-300 p-2.5 rounded-xl font-medium transition-all"></div>
+    </div>
+  </main>
+
+  <!-- Scenario & Category Config Modal -->
+  <div id="manageModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 w-full max-w-xl rounded-3xl shadow-2xl p-6 max-h-[90vh] flex flex-col pop-in">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+        <div>
+          <h3 class="text-base font-bold text-slate-800">Customize Tickets & Scenarios</h3>
+          <p class="text-xs text-slate-500">Add common tickets where people get confused about where to route.</p>
+        </div>
+        <button id="closeModalBtn" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center font-bold text-sm transition">✕</button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto space-y-4 pr-1 text-sm">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Current Routing Buckets</label>
+          <div id="activeBucketsTags" class="flex flex-wrap gap-2 mb-2"></div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-2.5">+ Add New Example Ticket</h4>
+          <div class="space-y-2.5 text-xs">
+            <div>
+              <label class="block text-slate-600 mb-1 font-medium">Issue Summary / Title</label>
+              <input id="newTitle" type="text" placeholder="e.g. Sales figures for yesterday aren't showing on warehouse board" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:bg-white transition" />
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1 font-medium">What the user reported (Ticket Body)</label>
+              <textarea id="newBody" rows="2" placeholder="e.g. Checked the terminal and sales were $5,000, but dashboard shows 0." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:bg-white transition"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label class="block text-slate-600 mb-1 font-medium">Current Intended Team</label>
+                <select id="newBucketSelect" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:bg-white transition"></select>
+              </div>
+              <div>
+                <label class="block text-slate-600 mb-1 font-medium">Why is this confusing?</label>
+                <input id="newRationale" type="text" placeholder="e.g. People see empty chart and assume UI bug" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-400/40 focus:bg-white transition" />
+              </div>
+            </div>
+            <button id="saveNewScenarioBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-xl text-xs transition shadow-sm">
+              Save Ticket to Rotation
+            </button>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-3 flex items-center justify-between">
+          <div>
+            <div class="text-xs font-bold text-slate-700">Restore Default Tickets</div>
+            <div class="text-[11px] text-slate-400">Reset scenarios back to standard set</div>
+          </div>
+          <button id="resetDefaultsBtn" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-xl font-medium transition">
+            Restore Defaults
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="border-t border-slate-200/60 py-4 text-center text-xs text-slate-400">
+    Ticket Routing Instincts Study • Help us simplify our team queues
+  </footer>
+
+  <script>
+    // Canonical Buckets matching user's requested architecture
+    const DEFAULT_BUCKETS = [
+      { id: "data_issue", name: "Data Issue (Parsing)", icon: "🧩", description: "Malformed payload, format errors, unparsable schemas, JSON syntax breaks" },
+      { id: "data_missing", name: "Data Missing", icon: "🔍", description: "Source had data, but records never arrived or got skipped in transit" },
+      { id: "data_not_displaying", name: "Data Not Displaying", icon: "👁️", description: "Data confirmed in database, but UI / visual dashboard shows blank" },
+      { id: "umbrella_issue", name: "Umbrella Issue", icon: "☂️", description: "Broad multi-service downtime, SSO failure, company-wide outage" },
+      { id: "iowa_issue", name: "Iowa Specific Issue", icon: "🌽", description: "Isolated regional facility equipment, Des Moines serial feeds, local plant nodes" },
+      { id: "access_perms", name: "Access & Permissions", icon: "🔑", description: "403 Forbidden, missing user roles, group provisioning, licenses" }
+    ];
+
+    // Seeded ticket questions illustrating the exact pain point with ambiguity insights
+    const DEFAULT_TICKETS = [
+      {
+        id: "TKT-1042",
+        subject: "I'm getting an issue where data is not parsing and I can't figure out why",
+        body: "When I upload the hourly JSON payload through the ETL ingest interface, the parser crashes with a malformed token exception at line 44. The system is rejecting the structure.",
+        source: "Ingest API / ETL",
+        region: "Global Pipeline",
+        urgency: "Medium",
+        intendedQueueId: "data_issue",
+        taxonomyInsight: "Often confused with 'Data Missing' when users assume skipped records caused it, but the root cause is syntax parsing.",
+        knownAmbiguity: "High confusion risk with 'Data Missing' if error logs aren't read."
+      },
+      {
+        id: "TKT-1043",
+        subject: "Warehouse 12 shows 0 rows for yesterday's orders, but the store confirmed sales",
+        body: "The store manager sent us their terminal register tape showing $42,000 in sales, but the central analytics table has 0 records for that location for the entire 24hr block.",
+        source: "POS Ingestion Pipe",
+        region: "Warehouse #12",
+        urgency: "High",
+        intendedQueueId: "data_missing",
+        taxonomyInsight: "Submitters frequently route this to 'Data Not Displaying' because the report is empty, even though the database itself lacks the rows.",
+        knownAmbiguity: "Common overlap with UI queue: users look at the empty table and report UI."
+      },
+      {
+        id: "TKT-1044",
+        subject: "DB team confirmed rows exist in Postgres, but the Dashboard table is blank",
+        body: "I queried the database directly and see 850 customer records in the table, but the React customer dashboard widget shows a blank white box with a spinner.",
+        source: "Web App Frontend",
+        region: "Customer Portal",
+        urgency: "Medium",
+        intendedQueueId: "data_not_displaying",
+        taxonomyInsight: "Clear UI case because backend data is verified. Shows how 'Data Missing' vs 'Data Not Displaying' can confuse people without DB access.",
+        knownAmbiguity: "Clear to technical users, highly ambiguous to general business users."
+      },
+      {
+        id: "TKT-1045",
+        subject: "Entire SSO and all microservices throwing 500 across every company tool",
+        body: "Both the US and EU clusters are experiencing total timeouts. None of the internal tools, dashboards, or sync pipelines can communicate with the gateway.",
+        source: "Central Auth Gateway",
+        region: "Worldwide",
+        urgency: "Critical",
+        intendedQueueId: "umbrella_issue",
+        taxonomyInsight: "Wide-spread platform crash. Users often file separate tickets under individual app queues instead of one master Umbrella ticket.",
+        knownAmbiguity: "Users often report the single tool they were using rather than recognizing an Umbrella issue."
+      },
+      {
+        id: "TKT-1046",
+        subject: "Des Moines branch grain scale serial feed disconnected after local power cycle",
+        body: "The proprietary serial sensor feed exclusive to the Iowa grain distribution facility failed to handshake after their local server room maintenance.",
+        source: "Iowa Edge Node",
+        region: "Iowa (Regional)",
+        urgency: "Medium",
+        intendedQueueId: "iowa_issue",
+        taxonomyInsight: "Specialized regional queue. Should avoid polluting standard data queues with localized legacy hardware issues.",
+        knownAmbiguity: "Sometimes misrouted to Data Parsing because the feed stream stopped."
+      },
+      {
+        id: "TKT-1047",
+        subject: "New employee gets '403 Forbidden: Insufficient clearance' on Revenue metrics",
+        body: "Sarah joined marketing yesterday and can see the analytics dashboard, but clicking into the Executive Revenue tab shows an access denial dialog.",
+        source: "Auth0 / IAM",
+        region: "Marketing Dept",
+        urgency: "Low",
+        intendedQueueId: "access_perms",
+        taxonomyInsight: "Authorization issue. Users occasionally file under 'Data Missing' because they cannot see the revenue figures.",
+        knownAmbiguity: "Submitters confuse 'permission denied' with broken reports."
+      }
+    ];
+
+    // State
+    let tickets = JSON.parse(localStorage.getItem("ticket_study_tickets")) || [...DEFAULT_TICKETS];
+    let buckets = [...DEFAULT_BUCKETS];
+    let currentIndex = 0;
+    let hasAnsweredCurrent = false;
+    let sessionResults = [];
+    let currentConfidence = "Confident";
+
+    // DOM Elements
+    const progressDisplay = document.getElementById("progressDisplay");
+    const choicesCountDisplay = document.getElementById("choicesCountDisplay");
+    const ticketCard = document.getElementById("ticketCard");
+    const ticketIdLabel = document.getElementById("ticketIdLabel");
+    const ticketSubject = document.getElementById("ticketSubject");
+    const ticketBody = document.getElementById("ticketBody");
+    const ticketSource = document.getElementById("ticketSource");
+    const ticketRegion = document.getElementById("ticketRegion");
+    const urgencyBadge = document.getElementById("urgencyBadge");
+    const bucketGrid = document.getElementById("bucketGrid");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const selectedBucketNameDisplay = document.getElementById("selectedBucketNameDisplay");
+    const taxonomyNoteText = document.getElementById("taxonomyNoteText");
+    const choiceReasonInput = document.getElementById("choiceReasonInput");
+    const nextTicketBtn = document.getElementById("nextTicketBtn");
+
+    const quizContainer = document.getElementById("quizContainer");
+    const summaryView = document.getElementById("summaryView");
+    const summaryTotalReviewed = document.getElementById("summaryTotalReviewed");
+    const summaryTopBucket = document.getElementById("summaryTopBucket");
+    const summaryTopBucketCount = document.getElementById("summaryTopBucketCount");
+    const summaryConfidenceScore = document.getElementById("summaryConfidenceScore");
+    const roundReviewList = document.getElementById("roundReviewList");
+    const restartQuizBtn = document.getElementById("restartQuizBtn");
+    const copySummaryBtn = document.getElementById("copySummaryBtn");
+    const downloadCsvBtn = document.getElementById("downloadCsvBtn");
+    const toastMessage = document.getElementById("toastMessage");
+
+    // Modal elements
+    const manageScenariosBtn = document.getElementById("manageScenariosBtn");
+    const manageModal = document.getElementById("manageModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const activeBucketsTags = document.getElementById("activeBucketsTags");
+    const newBucketSelect = document.getElementById("newBucketSelect");
+    const saveNewScenarioBtn = document.getElementById("saveNewScenarioBtn");
+    const resetDefaultsBtn = document.getElementById("resetDefaultsBtn");
+    const newTitle = document.getElementById("newTitle");
+    const newBody = document.getElementById("newBody");
+    const newRationale = document.getElementById("newRationale");
+
+    function init() {
+      renderBuckets();
+      loadTicket(currentIndex);
+      setupEventListeners();
+    }
+
+    function renderBuckets() {
+      bucketGrid.innerHTML = "";
+      buckets.forEach((bucket) => {
+        const btn = document.createElement("button");
+        btn.dataset.bucketId = bucket.id;
+        btn.className = `bucket-btn text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/40 transition-all flex flex-col justify-between group shadow-xs hover:shadow-md active:scale-98 cursor-pointer`;
+        btn.innerHTML = `
+          <div class="flex items-center justify-between w-full mb-1.5">
+            <span class="text-sm font-bold text-slate-800 group-hover:text-indigo-700 transition-colors flex items-center gap-2">
+              <span class="text-lg p-1 rounded-xl bg-slate-100 group-hover:bg-indigo-100 transition-colors">${bucket.icon}</span> 
+              <span>${bucket.name}</span>
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 group-hover:text-slate-600 line-clamp-2 leading-relaxed">${bucket.description}</p>
+        `;
+        btn.addEventListener("click", () => handleBucketSelection(bucket.id));
+        bucketGrid.appendChild(btn);
+      });
+    }
+
+    function loadTicket(index) {
+      if (index >= tickets.length) {
+        showSummary();
+        return;
+      }
+
+      hasAnsweredCurrent = false;
+      feedbackBox.classList.add("hidden");
+      choiceReasonInput.value = "";
+      currentConfidence = "Confident";
+      resetConfidenceButtons();
+
+      ticketCard.className = "bg-white border-2 border-slate-200 rounded-3xl p-6 sm:p-7 card-shadow transition-all duration-300 relative overflow-hidden";
+
+      const ticket = tickets[index];
+      ticketIdLabel.textContent = ticket.id;
+      ticketSubject.textContent = ticket.subject;
+      ticketBody.textContent = `"${ticket.body}"`;
+      ticketSource.textContent = ticket.source;
+      ticketRegion.textContent = ticket.region;
+
+      urgencyBadge.textContent = `Priority: ${ticket.urgency}`;
+      progressDisplay.textContent = `${index + 1} of ${tickets.length}`;
+      choicesCountDisplay.textContent = sessionResults.length;
+
+      // Re-enable all bucket buttons with fresh light styles
+      document.querySelectorAll(".bucket-btn").forEach((btn) => {
+        btn.disabled = false;
+        btn.className = "bucket-btn text-left p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-indigo-400 hover:bg-indigo-50/40 transition-all flex flex-col justify-between group shadow-xs hover:shadow-md active:scale-98 cursor-pointer";
+      });
+    }
+
+    function handleBucketSelection(selectedBucketId) {
+      if (hasAnsweredCurrent) return;
+      hasAnsweredCurrent = true;
+
+      const currentTicket = tickets[currentIndex];
+      const selectedBucketObj = buckets.find(b => b.id === selectedBucketId);
+      const intendedBucketObj = buckets.find(b => b.id === currentTicket.intendedQueueId) || { name: "General Triage" };
+
+      // Highlight selected bucket warmly
+      document.querySelectorAll(".bucket-btn").forEach(btn => {
+        btn.disabled = true;
+        const bId = btn.dataset.bucketId;
+        if (bId === selectedBucketId) {
+          btn.className = "bucket-btn text-left p-4 rounded-2xl border-2 border-indigo-500 bg-indigo-50 text-indigo-900 flex flex-col justify-between shadow-md ring-4 ring-indigo-100";
+        } else {
+          btn.className = "bucket-btn text-left p-4 rounded-2xl border border-slate-200 bg-slate-50/50 opacity-50 flex flex-col justify-between cursor-not-allowed";
+        }
+      });
+
+      ticketCard.classList.remove("border-slate-200");
+      ticketCard.classList.add("border-indigo-300");
+
+      // Update friendly feedback box
+      selectedBucketNameDisplay.textContent = `${selectedBucketObj.icon} ${selectedBucketObj.name}`;
+      taxonomyNoteText.textContent = `${currentTicket.taxonomyInsight} (Currently routed to "${intendedBucketObj.name}")`;
+      feedbackBox.classList.remove("hidden");
+
+      // Store in session results
+      sessionResults.push({
+        ticketId: currentTicket.id,
+        subject: currentTicket.subject,
+        selectedBucketId: selectedBucketObj.id,
+        selectedBucketName: selectedBucketObj.name,
+        intendedBucketName: intendedBucketObj.name,
+        confidence: currentConfidence,
+        userReason: "",
+        matchesIntended: selectedBucketObj.id === currentTicket.intendedQueueId
+      });
+
+      choicesCountDisplay.textContent = sessionResults.length;
+    }
+
+    function resetConfidenceButtons() {
+      document.querySelectorAll(".conf-btn").forEach(btn => {
+        btn.classList.remove("border-2", "border-indigo-500", "bg-indigo-50", "text-indigo-700", "font-bold", "shadow-2xs");
+        btn.classList.add("border", "border-slate-200", "bg-slate-50", "text-slate-600");
+      });
+      // Default to Confident
+      const defaultBtn = document.querySelector('.conf-btn[data-conf="Confident"]');
+      if (defaultBtn) {
+        defaultBtn.classList.remove("border", "border-slate-200", "bg-slate-50", "text-slate-600");
+        defaultBtn.classList.add("border-2", "border-indigo-500", "bg-indigo-50", "text-indigo-700", "font-bold", "shadow-2xs");
+      }
+    }
+
+    function showSummary() {
+      quizContainer.classList.add("hidden");
+      summaryView.classList.remove("hidden");
+
+      const total = sessionResults.length;
+      summaryTotalReviewed.textContent = total;
+
+      // Count bucket usage frequencies
+      const bucketCounts = {};
+      sessionResults.forEach(r => {
+        bucketCounts[r.selectedBucketName] = (bucketCounts[r.selectedBucketName] || 0) + 1;
+      });
+
+      let topBucket = "None";
+      let topCount = 0;
+      Object.entries(bucketCounts).forEach(([name, count]) => {
+        if (count > topCount) {
+          topCount = count;
+          topBucket = name;
+        }
+      });
+
+      summaryTopBucket.textContent = topBucket;
+      summaryTopBucketCount.textContent = `${topCount} of ${total} tickets routed here`;
+
+      // Confidence %
+      const highConfidenceCount = sessionResults.filter(r => r.confidence === "Confident").length;
+      const confPct = Math.round((highConfidenceCount / total) * 100) || 0;
+      summaryConfidenceScore.textContent = `${confPct}%`;
+
+      // Render summary cards with soft friendly badges
+      roundReviewList.innerHTML = "";
+      sessionResults.forEach((res) => {
+        const item = document.createElement("div");
+        const alignsWithQueue = res.matchesIntended;
+        
+        item.className = "p-4 rounded-2xl border bg-slate-50/70 border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-slate-700 hover:bg-white transition";
+        item.innerHTML = `
+          <div class="flex-1">
+            <div class="font-bold text-slate-800 text-sm">${res.subject}</div>
+            <div class="text-[12px] text-slate-500 mt-1 flex flex-wrap items-center gap-2">
+              <span>Your pick: <strong class="text-indigo-700">${res.selectedBucketName}</strong></span>
+              <span class="text-slate-300">•</span>
+              <span>Intended queue: <strong class="text-slate-700">${res.intendedBucketName}</strong></span>
+              ${res.userReason ? `<span class="text-slate-500 italic bg-white px-2 py-0.5 rounded-md border border-slate-200/60">"${res.userReason}"</span>` : ''}
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-[11px] px-2.5 py-1 rounded-lg border font-medium ${
+              res.confidence === 'Confident' ? 'bg-indigo-50 text-indigo-700 border-indigo-200' :
+              res.confidence === 'Somewhat Confident' ? 'bg-amber-50 text-amber-800 border-amber-200' :
+              'bg-rose-50 text-rose-700 border-rose-200'
+            }">${res.confidence}</span>
+            <span class="text-xs px-2.5 py-1 rounded-lg font-medium ${alignsWithQueue ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'}">
+              ${alignsWithQueue ? 'Direct Alignment' : 'Category Overlap'}
+            </span>
+          </div>
+        `;
+        roundReviewList.appendChild(item);
+      });
+    }
+
+    function showToast(msg) {
+      toastMessage.textContent = msg;
+      toastMessage.classList.remove("hidden");
+      setTimeout(() => {
+        toastMessage.classList.add("hidden");
+      }, 3500);
+    }
+
+    function setupEventListeners() {
+      // Confidence buttons
+      document.querySelectorAll(".conf-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".conf-btn").forEach(b => {
+            b.classList.remove("border-2", "border-indigo-500", "bg-indigo-50", "text-indigo-700", "font-bold", "shadow-2xs");
+            b.classList.add("border", "border-slate-200", "bg-slate-50", "text-slate-600");
+          });
+          btn.classList.remove("border", "border-slate-200", "bg-slate-50", "text-slate-600");
+          btn.classList.add("border-2", "border-indigo-500", "bg-indigo-50", "text-indigo-700", "font-bold", "shadow-2xs");
+          currentConfidence = btn.dataset.conf;
+          if (sessionResults.length > 0) {
+            sessionResults[sessionResults.length - 1].confidence = currentConfidence;
+          }
+        });
+      });
+
+      choiceReasonInput.addEventListener("input", (e) => {
+        if (sessionResults.length > 0) {
+          sessionResults[sessionResults.length - 1].userReason = e.target.value.trim();
+        }
+      });
+
+      nextTicketBtn.addEventListener("click", () => {
+        currentIndex++;
+        loadTicket(currentIndex);
+      });
+
+      restartQuizBtn.addEventListener("click", () => {
+        currentIndex = 0;
+        sessionResults = [];
+        choicesCountDisplay.textContent = "0";
+        summaryView.classList.add("hidden");
+        quizContainer.classList.remove("hidden");
+        loadTicket(currentIndex);
+      });
+
+      // Copy Slack summary to clipboard without iframe restriction errors
+      copySummaryBtn.addEventListener("click", () => {
+        let text = "*Ticket Routing Instincts Study Results*\n";
+        sessionResults.forEach(r => {
+          text += `• ${r.subject.substring(0, 50)}... -> Chose: *${r.selectedBucketName}* (Queue: ${r.intendedBucketName}) [${r.confidence}]\n`;
+        });
+        
+        const tempTextArea = document.createElement("textarea");
+        tempTextArea.value = text;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        try {
+          document.execCommand('copy');
+          showToast("Summary copied! Ready to paste into Slack.");
+        } catch (err) {
+          showToast("Could not copy automatically. Check permissions.");
+        }
+        document.body.removeChild(tempTextArea);
+      });
+
+      // Download CSV of study responses
+      downloadCsvBtn.addEventListener("click", () => {
+        let csv = "TicketID,Subject,SelectedBucket,IntendedQueue,Confidence,UserReason\n";
+        sessionResults.forEach(r => {
+          const safeSubject = `"${r.subject.replace(/"/g, '""')}"`;
+          const safeReason = `"${(r.userReason || "").replace(/"/g, '""')}"`;
+          csv += `${r.ticketId},${safeSubject},"${r.selectedBucketName}","${r.intendedBucketName}","${r.confidence}",${safeReason}\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.setAttribute('hidden', '');
+        a.setAttribute('href', url);
+        a.setAttribute('download', `ticket_routing_study_${Date.now()}.csv`);
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showToast("Responses downloaded as CSV!");
+      });
+
+      manageScenariosBtn.addEventListener("click", openConfigModal);
+
+      closeModalBtn.addEventListener("click", () => {
+        manageModal.classList.add("hidden");
+      });
+
+      saveNewScenarioBtn.addEventListener("click", () => {
+        const title = newTitle.value.trim();
+        const body = newBody.value.trim();
+        const bucket = newBucketSelect.value;
+        const rationale = newRationale.value.trim();
+
+        if (!title || !body) {
+          showToast("Please enter both a title and description.");
+          return;
+        }
+
+        const newTkt = {
+          id: `TKT-${Math.floor(1000 + Math.random() * 9000)}`,
+          subject: title,
+          body: body,
+          source: "Team Submissions",
+          region: "Configured",
+          urgency: "Medium",
+          intendedQueueId: bucket,
+          taxonomyInsight: rationale || "Configured via team study.",
+          knownAmbiguity: "Custom study ticket."
+        };
+
+        tickets.push(newTkt);
+        localStorage.setItem("ticket_study_tickets", JSON.stringify(tickets));
+
+        newTitle.value = "";
+        newBody.value = "";
+        newRationale.value = "";
+        manageModal.classList.add("hidden");
+        showToast("New ticket added to the rotation!");
+        progressDisplay.textContent = `${currentIndex + 1} of ${tickets.length}`;
+      });
+
+      resetDefaultsBtn.addEventListener("click", () => {
+        localStorage.removeItem("ticket_study_tickets");
+        tickets = [...DEFAULT_TICKETS];
+        currentIndex = 0;
+        sessionResults = [];
+        choicesCountDisplay.textContent = "0";
+        summaryView.classList.add("hidden");
+        quizContainer.classList.remove("hidden");
+        loadTicket(0);
+        manageModal.classList.add("hidden");
+        showToast("Defaults restored.");
+      });
+    }
+
+    function openConfigModal() {
+      activeBucketsTags.innerHTML = "";
+      newBucketSelect.innerHTML = "";
+
+      buckets.forEach(b => {
+        const tag = document.createElement("span");
+        tag.className = "bg-slate-100 border border-slate-200/80 px-3 py-1 rounded-xl text-xs text-slate-700 flex items-center gap-1.5 font-medium";
+        tag.innerHTML = `${b.icon} ${b.name}`;
+        activeBucketsTags.appendChild(tag);
+
+        const opt = document.createElement("option");
+        opt.value = b.id;
+        opt.textContent = `${b.icon} ${b.name}`;
+        newBucketSelect.appendChild(opt);
+      });
+
+      manageModal.classList.remove("hidden");
+    }
+
+    init();
+  </script>
+</body>
+</html>
